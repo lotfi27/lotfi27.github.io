@@ -24,4 +24,10 @@
        url('/oswald-v35-latin-regular.0c3230b7.svg#Oswald') format('svg'); /* Legacy iOS */
 }
 
+@font-face{
+  font-family:'Montserrat';
+  src:url('/Montserrat-ExtraBoldItalic.4c3b1206.otf') format('otf');
+}
+
+
 /*# sourceMappingURL=/typography.880a8441.css.map */

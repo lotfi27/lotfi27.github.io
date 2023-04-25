@@ -125,30 +125,46 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.appendAxes = appendAxes;
 exports.appendGraphLabels = appendGraphLabels;
-exports.drawXAxisViz3 = drawXAxisViz3;
-exports.drawYAxisViz3 = drawYAxisViz3;
+exports.drawButtons = drawButtons;
+exports.drawXAxis = drawXAxis;
+exports.drawYAxis = drawYAxis;
+exports.drawYAxisBar = drawYAxisBar;
 exports.generateG = generateG;
+exports.generateGViz4 = generateGViz4;
 exports.listOfPlayTimeCSVs = listOfPlayTimeCSVs;
-exports.placeTitleViz3 = placeTitleViz3;
+exports.placeTitle = placeTitle;
+exports.placeTitleViz4 = placeTitleViz4;
 exports.setCanvasSize = setCanvasSize;
 /**
  * Generates the SVG element g which will contain the data visualisation.
  *
  * @param {object} margin The desired margins around the graph
+ * @param {string} id The id of the graph
  * @returns {*} The d3 Selection for the created g element
  */
-function generateG(margin) {
-  return d3.select('.graph').select('svg').append('g').attr('id', 'graph-g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+function generateG(margin, id) {
+  return d3.select('#map-' + id).select('svg').append('g').attr('id', id).attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+}
+/**
+ * Generates the SVG element g which will contain the data visualisation.
+ *
+ * @param {object} margin The desired margins around the graph
+ * @param {string} id The id of the graph
+ * @param {string} graphId The id of the svg
+ * @returns {*} The d3 Selection for the created g element
+ */
+function generateGViz4(margin, id, graphId) {
+  return d3.select('#map-' + id).select(graphId).append('g').attr('id', id + graphId[graphId.length - 1]).attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 }
 /**
  * Sets the size of the SVG canvas containing the graph.
  *
+ * @param {string} id The desired width
  * @param {number} width The desired width
  * @param {number} height The desired height
  */
-function setCanvasSize(width, height) {
-  // the id (#) can be change
-  d3.select('#map').select('svg').attr('width', width).attr('height', height);
+function setCanvasSize(id, width, height) {
+  d3.select(id).select('svg').attr('width', width).attr('height', height);
 }
 
 /**
@@ -164,52 +180,102 @@ function appendAxes(g) {
 /**
  * Appends the labels for the the y axis and the title of the graph.
  *
+ * @param {*} g The d3 Selection of the graph's g SVG element
  * @param {string} labelX The text of the axis X
  * @param {string} labelY The text of the axis Y
- * @param {*} g The d3 Selection of the graph's g SVG element
  */
 function appendGraphLabels(g, labelX, labelY) {
-  g.append('text').text(labelY).attr('class', 'y axis-text').attr('transform', 'rotate(-90)').attr('font-size', 12);
+  g.append('text').attr('class', 'y axis-text').attr('text-anchor', 'middle').attr('transform', 'rotate(0)').attr('font-size', 12).selectAll('tspan').data(labelY.split(' ')).enter().append('tspan').text(function (d) {
+    return d;
+  }).attr('dy', function (d, i) {
+    return i !== 0 ? 20 : 0;
+  }).attr('x', -60);
   g.append('text').text(labelX).attr('class', 'x axis-text').attr('font-size', 12);
 }
 
 /**
- * Viz 3:
  * Places the graph's title.
  *
  * @param {*} g The d3 Selection of the graph's g SVG element
  */
-function placeTitleViz3(g) {
-  g.append('text').attr('class', 'title').attr('x', 0).attr('y', -20).attr('font-size', 14);
+function placeTitle(g) {
+  g.append('text').attr('class', 'title').attr('x', 0).attr('y', -50).attr('font-size', 14);
+}
+
+/**
+ * Viz 4:
+ * Places the graph's title.
+ *
+ * @param {*} g The d3 Selection of the graph's g SVG element
+ */
+function placeTitleViz4(g) {
+  g.append('text').attr('class', 'title').attr('x', 0).attr('y', 0).attr('font-size', 14);
 }
 
 /**
  * Viz 3:
  * Draws the X axis at the bottom of the diagram.
  *
+ * @param {*} g The d3 Selection of the graph's g SVG element
  * @param {*} xScale The scale to use to draw the axis
  * @param {number} height The height of the graphic
  */
-function drawXAxisViz3(xScale, height) {
-  var xAxis = d3.axisBottom(xScale).tickSizeOuter(0).tickArguments([5, '~s']).tickFormat(d3.format('d')); // specify the format as 'd' for integer
-
-  d3.select('.x.axis').attr('transform', 'translate(0, ' + height + ')').call(xAxis);
+function drawXAxis(g, xScale, height) {
+  var xAxis = d3.axisBottom(xScale).tickSizeOuter(0).tickArguments([10, '~s']).tickFormat(d3.format('d'));
+  g.select('.x.axis').attr('transform', 'translate(0, ' + height + ')').call(xAxis);
 }
 
 /**
  * Draws the Y axis to the left of the diagram.
  *
+ * @param {*} g The d3 Selection of the graph's g SVG element
  * @param {*} yScale The scale to use to draw the axis
  */
-function drawYAxisViz3(yScale) {
-  d3.select('.y.axis').call(d3.axisLeft(yScale).tickSizeOuter(0).tickArguments([5, '.0r']));
+function drawYAxis(g, yScale) {
+  g.select('.y.axis').call(d3.axisLeft(yScale).tickSizeOuter(0).tickArguments([5, '.0r']));
+}
+
+/**
+ * Viz 4 - Bar:
+ * Draws the Y axis to the left of the diagram.
+ *
+ * @param {*} g The d3 Selection of the graph's g SVG element
+ * @param {*} yScale The scale to use to draw the axis
+ */
+function drawYAxisBar(g, yScale) {
+  g.select('.y.axis').call(d3.axisLeft(yScale).tickSizeOuter(0).tickArguments([16, '.0r']));
+}
+
+/**
+ * Draws the button to toggle the display year.
+ *
+ * @param {*} g The d3 Selection of the graph's g SVG element
+ * @param {number} width The width of the graph, used to place the button
+ * @param {number} height The height of the graph
+ * @param {string} color The color of the button disable
+ */
+function drawButtons(g, width, height, color) {
+  var backButton = g.append('g').attr('class', 'button back').attr('transform', 'translate(' + (width / 2 - 100) + ',' + (height + 20) + ')').attr('width', 50).attr('height', 25);
+  backButton.append('rect').attr('width', 70).attr('height', 30).attr('fill', '#f4f6f4').on('mouseenter', function () {
+    d3.select(this).attr('stroke', '#362023');
+  }).on('mouseleave', function () {
+    d3.select(this).attr('stroke', '#f4f6f4');
+  });
+  backButton.append('text').attr('x', 35).attr('y', 15).attr('text-anchor', 'middle').attr('dominant-baseline', 'middle').attr('class', 'button-text').text('<').attr('font-size', '10px').attr('fill', '#362023');
+  var forwardButton = g.append('g').attr('class', 'button forward').attr('transform', 'translate(' + (width / 2 + 50) + ',' + (height + 20) + ')').attr('width', 50).attr('height', 25);
+  forwardButton.append('rect').attr('width', 70).attr('height', 30).attr('fill', color).attr('pointer-events', 'none').on('mouseenter', function () {
+    d3.select(this).attr('stroke', '#362023');
+  }).on('mouseleave', function () {
+    d3.select(this).attr('stroke', '#f4f6f4');
+  });
+  forwardButton.append('text').attr('x', 35).attr('y', 15).attr('text-anchor', 'middle').attr('dominant-baseline', 'middle').attr('class', 'button-text').text('>').attr('font-size', '10px').attr('fill', '#362023');
 }
 
 /**
  * @returns {Array[]} The array with names of PlayTime CSVs
  */
 function listOfPlayTimeCSVs() {
-  var csvFiles = ['./PlayTime/Allan-SimonsenPlayTime.csv', './PlayTime/Andriy-ShevchenkoPlayTime.csv', './PlayTime/Bobby-CharltonPlayTime.csv', './PlayTime/Cristiano-RonaldoPlayTime.csv', './PlayTime/Denis-LawPlayTime.csv', './PlayTime/EusebioPlayTime.csv', './PlayTime/Fabio-CannavaroPlayTime.csv', './PlayTime/Florian-AlbertPlayTime.csv', './PlayTime/Franz-BeckenbauerPlayTime.csv', './PlayTime/George-BestPlayTime.csv', './PlayTime/George-WeahPlayTime.csv', './PlayTime/Gerd-MullerPlayTime.csv', './PlayTime/Gianni-RiveraPlayTime.csv', './PlayTime/Hristo-StoichkovPlayTime.csv', './PlayTime/Igor-BelanovPlayTime.csv', './PlayTime/Jean-Pierre-PapinPlayTime.csv', './PlayTime/Johan-CruyffPlayTime.csv', './PlayTime/Josef-MasopustPlayTime.csv', './PlayTime/KakaPlayTime.csv', './PlayTime/Karim-BenzemaPlayTime.csv', './PlayTime/Karl-Heinz-RummeniggePlayTime.csv', './PlayTime/Kevin-KeeganPlayTime.csv', './PlayTime/Lev-YashinPlayTime.csv', './PlayTime/Lionel-MessiPlayTime.csv', './PlayTime/Lothar-MatthausPlayTime.csv', './PlayTime/Luis-FigoPlayTime.csv', './PlayTime/Luis-SuarezPlayTime.csv', './PlayTime/Luka-ModricPlayTime.csv', './PlayTime/Marco-van-BastenPlayTime.csv', './PlayTime/Matthias-SammerPlayTime.csv', './PlayTime/Michael-OwenPlayTime.csv', './PlayTime/Michel-PlatiniPlayTime.csv', './PlayTime/Omar-SivoriPlayTime.csv', './PlayTime/Paolo-RossiPlayTime.csv', './PlayTime/Pavel-NedvedPlayTime.csv', './PlayTime/Raymond-KopaPlayTime.csv', './PlayTime/RivaldoPlayTime.csv', './PlayTime/Roberto-BaggioPlayTime.csv', './PlayTime/RonaldinhoPlayTime.csv', './PlayTime/RonaldoPlayTime.csv', './PlayTime/Ronaldo-NazarioPlayTime.csv', './PlayTime/Ruud-GullitPlayTime.csv', './PlayTime/Samuel-EtooPlayTime.csv', './PlayTime/Sandro-MazzolaPlayTime.csv', './PlayTime/Steven-GerrardPlayTime.csv', './PlayTime/Thierry-HenryPlayTime.csv', './PlayTime/Zinedine-ZidanePlayTime.csv'];
+  var csvFiles = ['./PlayTime/Allan-SimonsenPlayTime.csv', './PlayTime/Andriy-ShevchenkoPlayTime.csv', './PlayTime/Bobby-CharltonPlayTime.csv', './PlayTime/Cristiano-RonaldoPlayTime.csv', './PlayTime/Denis-LawPlayTime.csv', './PlayTime/EusebioPlayTime.csv', './PlayTime/Fabio-CannavaroPlayTime.csv', './PlayTime/Florian-AlbertPlayTime.csv', './PlayTime/Franz-BeckenbauerPlayTime.csv', './PlayTime/George-BestPlayTime.csv', './PlayTime/George-WeahPlayTime.csv', './PlayTime/Gerd-MullerPlayTime.csv', './PlayTime/Gianni-RiveraPlayTime.csv', './PlayTime/Hristo-StoichkovPlayTime.csv', './PlayTime/Igor-BelanovPlayTime.csv', './PlayTime/Jean-Pierre-PapinPlayTime.csv', './PlayTime/Johan-CruyffPlayTime.csv', './PlayTime/Josef-MasopustPlayTime.csv', './PlayTime/KakaPlayTime.csv', './PlayTime/Karim-BenzemaPlayTime.csv', './PlayTime/Karl-Heinz-RummeniggePlayTime.csv', './PlayTime/Kevin-KeeganPlayTime.csv', './PlayTime/Lev-YashinPlayTime.csv', './PlayTime/Lionel-MessiPlayTime.csv', './PlayTime/Lothar-MatthausPlayTime.csv', './PlayTime/Luis-FigoPlayTime.csv', './PlayTime/Luis-SuarezPlayTime.csv', './PlayTime/Luka-ModricPlayTime.csv', './PlayTime/Marco-van-BastenPlayTime.csv', './PlayTime/Matthias-SammerPlayTime.csv', './PlayTime/Michael-OwenPlayTime.csv', './PlayTime/Michel-PlatiniPlayTime.csv', './PlayTime/Omar-SivoriPlayTime.csv', './PlayTime/Paolo-RossiPlayTime.csv', './PlayTime/Pavel-NedvedPlayTime.csv', './PlayTime/Raymond-KopaPlayTime.csv', './PlayTime/RivaldoPlayTime.csv', './PlayTime/Roberto-BaggioPlayTime.csv', './PlayTime/RonaldinhoPlayTime.csv', './PlayTime/RonaldoPlayTime.csv', './PlayTime/Ronaldo-NazarioPlayTime.csv', './PlayTime/Ruud-GullitPlayTime.csv', './PlayTime/Samuel-EtooPlayTime.csv', './PlayTime/Sandro-MazzolaPlayTime.csv', './PlayTime/Steven-GerrardPlayTime.csv', './PlayTime/Thierry-HenryPlayTime.csv', './PlayTime/Zinedine-ZidanePlayTime.csv', './PlayTime/Oleg-BlokhinPlayTime.csv', './PlayTime/Alfredo-Di-StefanoPlayTime.csv', './PlayTime/Stanley-MatthewsPlayTime.csv'];
   return csvFiles;
 }
 },{}],"scripts/tooltip.js":[function(require,module,exports) {
@@ -218,7 +284,11 @@ function listOfPlayTimeCSVs() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.getContentsViz1 = getContentsViz1;
+exports.getContentsViz2 = getContentsViz2;
 exports.getContentsViz3 = getContentsViz3;
+exports.getContentsViz4 = getContentsViz4;
+exports.getContentsViz4Bar = getContentsViz4Bar;
 /**
  * Viz 3:
  * Defines the contents of the tooltip.
@@ -247,32 +317,124 @@ function getContentsViz3(d) {
   };
   return createContent(data);
 }
+
+/**
+ * Viz 4:
+ * Defines the contents of the tooltip.
+ *
+ * @param {object} d The data associated to the hovered element
+ * @returns {string} The tooltip contents
+ */
+function getContentsViz4(d) {
+  var createDataItem = function createDataItem(label, value) {
+    return {
+      label: label,
+      value: value
+    };
+  };
+  var data = [createDataItem('Player: ', d.player), createDataItem('Age: ', d.age), createDataItem('Year: ', d.year)];
+  var createContent = function createContent(data) {
+    var container = d3.create('div');
+    data.forEach(function (_ref2) {
+      var label = _ref2.label,
+        value = _ref2.value;
+      var itemContainer = container.append('div');
+      itemContainer.append('span').attr('class', 'tooltip-label').text(label);
+      itemContainer.append('span').attr('class', 'tooltip-value').text(value);
+    });
+    return container.html();
+  };
+  return createContent(data);
+}
+
+/**
+ * Viz 4 - Bar:
+ * Defines the contents of the tooltip.
+ *
+ * @param {object} d The data associated to the hovered element
+ * @returns {string} The tooltip contents
+ */
+function getContentsViz4Bar(d) {
+  var createDataItem = function createDataItem(value) {
+    return {
+      value: value
+    };
+  };
+  var data = [createDataItem("".concat(d, " ").concat(d === 1 ? 'player' : 'players'))];
+  var createContent = function createContent(data) {
+    var container = d3.create('div');
+    data.forEach(function (_ref3) {
+      var value = _ref3.value;
+      var itemContainer = container.append('div');
+      itemContainer.append('span').attr('class', 'tooltip-value').text(value);
+    });
+    return container.html();
+  };
+  return createContent(data);
+}
+
+/**
+ * Viz 2:
+ * Defines the contents of the tooltip.
+ *
+ * @param {object} d The 'd' parameter is an object representing a player
+ * @returns {string} The tooltip contents
+ */
+function getContentsViz2(d) {
+  var playerName = d.Player;
+  var playerYears = d.Years.join(', '); // Assuming 'Years' is an array of years
+
+  return 'Player: ' + playerName + '<br/>' + 'Years: ' + playerYears;
+}
+
+/**
+ * Viz 1:
+ * Defines the contents of the tooltip.
+ *
+ * @param {object} d The 'd' parameter is an object representing a player
+ * @returns {string} The tooltip contents
+ */
+function getContentsViz1(d) {
+  var playerName = d.Player;
+  var playerYears = d.Years.join(', '); // Assuming 'Years' is an array of years
+
+  return 'Player: ' + playerName + '<br/>' + 'Years: ' + playerYears;
+}
 },{}],"scripts/viz.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.drawBar = drawBar;
 exports.drawCircles = drawCircles;
-exports.moveCircles = moveCircles;
-exports.positionLabelsViz3 = positionLabelsViz3;
-exports.setCircleHoverHandler = setCircleHoverHandler;
-exports.setTitleTextViz3 = setTitleTextViz3;
+exports.drawData = drawData;
+exports.drawLines = drawLines;
+exports.moveCirclesViz3 = moveCirclesViz3;
+exports.moveCirclesViz4 = moveCirclesViz4;
+exports.positionLabels = positionLabels;
+exports.setHoverHandlerViz3 = setHoverHandlerViz3;
+exports.setHoverHandlerViz4 = setHoverHandlerViz4;
+exports.setHoverHandlerViz4Bar = setHoverHandlerViz4Bar;
+exports.setLinesHoverHandler = setLinesHoverHandler;
+exports.setTitleText = setTitleText;
 var _tooltip = require("./tooltip");
 /**
+ * Viz 3:
  * Draws the circles on the graph.
  *
  * @param {object} data The data to bind to
+ * @param {string} id The id of the graph
  * @param {*} rScale The scale for the circles' radius
  * @param {*} colorScale The scale for the circles' color
  */
-function drawCircles(data, rScale, colorScale) {
-  d3.select('#graph-g').append('g').attr('id', 'circles');
+function drawCircles(data, id, rScale, colorScale) {
+  d3.select(id).append('g').attr('id', 'circles');
   d3.select('#circles').selectAll('circle').data(data).join('circle').attr('r', function (d) {
     return rScale(d.games);
   }).attr('fill', function (d) {
     return colorScale(d.position);
-  }).style('opacity', 0.7).attr('stroke', 'white');
+  }).style('opacity', 0.7);
 }
 
 /**
@@ -283,9 +445,9 @@ function drawCircles(data, rScale, colorScale) {
  * @param {number} width The width of the graph
  * @param {number} height The height of the graph
  */
-function positionLabelsViz3(g, width, height) {
+function positionLabels(g, width, height) {
   g.select('.x.axis-text').attr('x', width / 2).attr('y', height + 40);
-  g.select('.y.axis-text').attr('x', -240).attr('y', height - 480);
+  g.select('.y.axis-text').attr('x', -40).attr('y', height / 2);
 }
 
 /**
@@ -294,7 +456,7 @@ function positionLabelsViz3(g, width, height) {
  *
  * @param {*} tip The tooltip
  */
-function setCircleHoverHandler(tip) {
+function setHoverHandlerViz3(tip) {
   var circles = d3.select('#circles').selectAll('circle');
   circles.on('mouseover', function (event, data) {
     var circle = d3.select(data)._groups[0][0];
@@ -312,16 +474,62 @@ function setCircleHoverHandler(tip) {
 }
 
 /**
+ * Viz 4 - scatter:
+ * Sets up the hover event handler. The tooltip should show on on hover.
+ *
+ * @param {*} tip The tooltip
+ */
+function setHoverHandlerViz4(tip) {
+  var circles = d3.select('#scatterplot').selectAll('circle');
+  circles.on('mouseover', function (event, data) {
+    var scatter = d3.select(data)._groups[0][0];
+    var content = (0, _tooltip.getContentsViz4)(scatter);
+    d3.select(event.currentTarget).style('opacity', 1);
+    tip.offsetX = event.offsetX;
+    tip.offsetY = event.offsetY;
+    tip.html(content);
+    tip.style('left', event.pageX + 'px').style('top', event.pageY + 'px').style('font-weight', 300).show(data, event.currentTarget);
+  });
+  circles.on('mouseout', function (event) {
+    d3.select(event.currentTarget).style('opacity', 0.7);
+    tip.hide();
+  });
+}
+
+/**
+ * Viz 4 - bar:
+ * Sets up the hover event handler. The tooltip should show on on hover.
+ *
+ * @param {*} tip The tooltip
+ */
+function setHoverHandlerViz4Bar(tip) {
+  var rects = d3.select('#bars').selectAll('rect');
+  rects.on('mouseover', function (event, data) {
+    var content = (0, _tooltip.getContentsViz4Bar)(data);
+    d3.select(event.currentTarget).style('opacity', 1);
+    tip.offsetX = event.offsetX;
+    tip.offsetY = event.offsetY;
+    tip.html(content);
+    tip.style('left', event.pageX + 'px').style('top', event.pageY + 'px').style('font-weight', 300).show(data, event.currentTarget);
+  });
+  rects.on('mouseout', function (event) {
+    d3.select(event.currentTarget).style('opacity', 0.7);
+    tip.hide();
+  });
+}
+
+/**
  * Viz 3:
  * Updates the position of the circles based on their bound data. The position
  * transitions gradually.
  *
+ * @param {*} g The d3 Selection of the graph's g SVG element
  * @param {*} xScale The x scale used to position the circles
  * @param {*} yScale The y scale used to position the circles
  * @param {number} transitionDuration The duration of the transition
  */
-function moveCircles(xScale, yScale, transitionDuration) {
-  var circles = d3.selectAll('#circles circle');
+function moveCirclesViz3(g, xScale, yScale, transitionDuration) {
+  var circles = g.selectAll('#circles circle');
   circles.transition().duration(transitionDuration).attr('cx', function (d) {
     return xScale(d.year);
   }).attr('cy', function (d) {
@@ -330,12 +538,131 @@ function moveCircles(xScale, yScale, transitionDuration) {
 }
 
 /**
- * Viz 3:
  * Update the title of the graph.
+ *
+ * @param {string} id The id of the graph
+ * @param {string} text The text of the title
  */
-function setTitleTextViz3() {
-  var title = 'Relationship between winners, minutes and games played';
-  d3.select('#graph-g').selectAll('.title').text(title);
+function setTitleText(id, text) {
+  d3.select(id).selectAll('.title').text(text);
+}
+
+/**
+ * Viz 4 - scatter:
+ * Draws the circles on the graph.
+ *
+ * @param {object} data The data to bind to
+ * @param {string} id The id of the graph
+ * @param {*} xScale The x scale used to position the circles
+ * @param {*} yScale The y scale used to position the circles
+ */
+function drawData(data, id, xScale, yScale) {
+  // create a new SVG group for the lines and a new for the circles
+  d3.select(id).append('g').attr('id', 'lines');
+  d3.select(id).append('g').attr('id', 'scatterplot');
+
+  // draw the circles
+  d3.select('#scatterplot').selectAll('circle').data(data).join('circle').attr('r', 5).attr('fill', 'steelblue').style('opacity', 0.7);
+
+  // draw the lines
+  var lines = d3.line().x(function (d) {
+    return xScale(d.year);
+  }).y(function (d) {
+    return yScale(d.age);
+  }).curve(d3.curveLinear);
+
+  // remove the old path
+  var oldLines = d3.select(id).selectAll('#lines path');
+  oldLines.remove();
+  d3.select('#lines').append('path').datum(data).attr('d', lines).attr('fill', 'none').attr('stroke', 'steelblue').attr('stroke-width', 2).style('opacity', 0.5);
+}
+
+/**
+ * Viz 4 - scatter:
+ * Updates the position of the circles based on their bound data. The position
+ * transitions gradually.
+ *
+ * @param {*} g The d3 Selection of the graph's g SVG element
+ * @param {*} xScale The x scale used to position the circles
+ * @param {*} yScale The y scale used to position the circles
+ * @param {number} transitionDuration The duration of the transition
+ */
+function moveCirclesViz4(g, xScale, yScale, transitionDuration) {
+  var circles = g.selectAll('#scatterplot circle');
+  var lines = g.selectAll('#lines path');
+  circles.transition().duration(transitionDuration).attr('cx', function (d) {
+    return xScale(d.year);
+  }).attr('cy', function (d) {
+    return yScale(d.age);
+  });
+  lines.transition().duration(transitionDuration).attr('d', d3.line().x(function (d) {
+    return xScale(d.year);
+  }).y(function (d) {
+    return yScale(d.age);
+  }).curve(d3.curveLinear));
+}
+
+/**
+ * Viz 4 - Bar:
+ * Draws the circles on the graph.
+ *
+ * @param {object} data The data {age, count}
+ * @param {string} id The id of the graph
+ * @param {*} xScale The x scale used to position the circles
+ * @param {*} yScale The y scale used to position the circles
+ */
+function drawBar(data, id, xScale, yScale) {
+  var countArray = data.map(function (d) {
+    return d.count;
+  });
+  var ageArray = data.map(function (d) {
+    return d.age;
+  });
+
+  // create a new SVG group for the bars
+  d3.select(id).append('g').attr('id', 'bars');
+  d3.select('#bars').selectAll('rect').data(countArray).join('rect').attr('x', xScale(0)).attr('y', function (d, i) {
+    return yScale(ageArray[i]);
+  }).attr('width', function (d) {
+    return xScale(d) - xScale(0);
+  }).attr('height', yScale.bandwidth()).attr('fill', 'steelblue').style('opacity', 0.7);
+}
+
+/**
+ * Viz 2:
+ * Sets up the hover event handler. The tooltip should show on on hover.
+ *
+ * @param {*} tip The tooltip
+ */
+function setLinesHoverHandler(tip) {
+  d3.selectAll('.line').on('mouseover', function (d, i) {
+    tip.show(d, this);
+  }).on('mouseout', function (d, i) {
+    tip.hide();
+  });
+}
+
+/**
+ * Draws the circles on the graph.
+ *
+ * @param {object} data The data to bind to
+ * @param {*} player Player
+ * @param {*} colorScale The scale for the circles' color
+ * @param {*} tip Tooltip
+ */
+function drawLines(data, player, colorScale, tip) {
+  var line = d3.line().x(function (d) {
+    return d.x;
+  }).y(function (d) {
+    return d.y;
+  });
+
+  // Append the line to the graph
+  d3.select('#viz2').append('svg').append('path').datum(data).attr('class', 'line').attr('d', line).attr('fill', 'none').attr('stroke', colorScale).attr('stroke-width', 5).on('mouseover', function (d) {
+    tip.show(player, this);
+  }).on('mouseout', function (d) {
+    tip.hide();
+  });
 }
 },{"./tooltip":"scripts/tooltip.js"}],"scripts/preprocess.js":[function(require,module,exports) {
 "use strict";
@@ -344,8 +671,16 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.addCodePlayerColumn = addCodePlayerColumn;
+exports.ageCounts = ageCounts;
+exports.getAges = getAges;
 exports.getMinutesGames = getMinutesGames;
+exports.getPlayersNames = getPlayersNames;
 exports.mergeDataByKeys = mergeDataByKeys;
+exports.summarizeBallonDor = summarizeBallonDor;
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -379,7 +714,7 @@ function mergeDataByKeys(dataA, dataB, keyA, keyB) {
  */
 function addCodePlayerColumn(data, colName) {
   data.forEach(function (item) {
-    item[colName] = item.player.replace(/\s+/g, '-');
+    item[colName] = item.player.replace(/ /g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   });
   return data;
 }
@@ -412,6 +747,108 @@ function getMinutesGames(csvNames, csvFiles) {
     });
   });
   return playerData;
+}
+
+/**
+ * @param {object[]} data The data
+ * @returns {object[]} The data with the ages of players
+ */
+function getAges(data) {
+  var playersWithAge = data.map(function (player) {
+    return _objectSpread(_objectSpread({}, player), {}, {
+      age: player.year - player.birth
+    });
+  });
+  return playersWithAge;
+}
+
+/**
+ * @param {object[]} data The data
+ * @returns {object[]} The data with the age counts
+ */
+function ageCounts(data) {
+  var ages = data.map(function (player) {
+    return player.age;
+  });
+  var ageCounts = d3.rollup(ages, function (v) {
+    return v.length;
+  }, function (d) {
+    return d;
+  });
+
+  // Create list of objects { age, count } sorted by age
+  var sortedAgeCounts = Array.from(ageCounts.entries()).sort(function (a, b) {
+    return a[0] - b[0];
+  }).map(function (_ref) {
+    var _ref2 = _slicedToArray(_ref, 2),
+      age = _ref2[0],
+      count = _ref2[1];
+    return {
+      age: age,
+      count: count
+    };
+  });
+  return sortedAgeCounts;
+}
+
+/**
+ * @param {Array[]} dataSet the data to analyze
+ * @param {string} country The country name
+ * @returns {object[]} The data with informations about the players
+ */
+function getPlayersNames(dataSet, country) {
+  var playerData = [];
+  dataSet.forEach(function (data) {
+    if (data.Nationality === country) {
+      playerData.push(data);
+    }
+  });
+  return playerData;
+}
+
+/**
+ * Transforms the data by nesting it, grouping by act and then by player, indicating the line count
+ * for each player in each act.
+ *
+ * The resulting data structure ressembles the following :
+ *
+ * [
+ *  { Player : ___, Years: ___ }, ...
+ * ]
+ *
+ * The number of the act (starting at 1) follows the 'Act' key. The name of the player follows the
+ * 'Player' key. The number of lines that player has in that act follows the 'Count' key.
+ *
+ * @param {object[]} data The dataset
+ * @returns {object[]} The nested data set grouping the line count by player and by act
+ */
+function summarizeBallonDor(data) {
+  var players = [];
+  var summarizedData = [];
+  data.forEach(function (dataCSV) {
+    if (!players.includes(dataCSV.player)) players.push(dataCSV.player);
+  });
+  players.forEach(function (player) {
+    var years = [];
+    data.forEach(function (dataCSV) {
+      if (dataCSV.player === player) {
+        years.push(dataCSV.year);
+      }
+    });
+    if (years.length > 1) {
+      years.sort();
+      summarizedData.push({
+        Player: player,
+        Years: years
+      });
+    }
+  });
+
+  // Sort summarizedData array in descending order based on number of years
+  summarizedData.sort(function (a, b) {
+    return b.Years.length - a.Years.length;
+  });
+  return summarizedData;
 }
 },{}],"../node_modules/d3-svg-legend/node_modules/d3-selection/src/namespaces.js":[function(require,module,exports) {
 "use strict";
@@ -8680,6 +9117,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.drawLegend = drawLegend;
+exports.drawLegendViz1 = drawLegendViz1;
+exports.drawLegendViz2 = drawLegendViz2;
 var _d3SvgLegend = _interopRequireDefault(require("d3-svg-legend"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 /**
@@ -8692,8 +9131,52 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function drawLegend(colorScale, g, width) {
   var domain = colorScale.domain().sort();
   colorScale.domain(domain);
-  var legend = _d3SvgLegend.default.legendColor().title('Legend').shape('path', d3.symbol().type(d3.symbolCircle).size(300)()).scale(colorScale);
-  g.append('g').attr('class', 'legend').attr('transform', "translate(".concat(width, ", -20)")).style('font-size', '12px').call(legend);
+  var legend = _d3SvgLegend.default.legendColor().title('Position').shape('path', d3.symbol().type(d3.symbolCircle).size(300)()).scale(colorScale);
+  g.append('g').attr('class', 'legend').attr('transform', "translate(".concat(width + 100, ", -20)")).style('font-size', '12px').call(legend);
+}
+
+/**
+ * Draws the legend.
+ *
+ * @param {*} colorScale The color scale to use
+ * @param {*} g The d3 Selection of the graph's g SVG element
+ * @param {number} width The width of the graph, used to place the legend
+ */
+function drawLegendViz1(colorScale, g, width) {
+  g.append('g').attr('id', 'legend').attr('transform', 'translate(' + width + ',0)');
+
+  // Get the domain values from the color scale
+  var newDomainValues = ['0', '1', '2-3', '4-5', '6-7'];
+  colorScale.domain(newDomainValues);
+
+  // Create a legend scale with the domain values and a custom label function
+  var legend = _d3SvgLegend.default.legendColor().scale(colorScale).title('Number of winners').shape('path', d3.symbol().type(d3.symbolCircle).size(300)()).shapeWidth(25).labels(function (d) {
+    return newDomainValues[d.i];
+  });
+  g.select('#legend').call(legend);
+  g.select('#legend').call(legend);
+}
+
+/**
+ * Draws the legend.
+ *
+ * @param {*} colorScale The color scale to use
+ * @param {*} g The d3 Selection of the graph's g SVG element
+ * @param {number} width The width of the graph, used to place the legend
+ */
+function drawLegendViz2(colorScale, g, width) {
+  g.append('g').attr('id', 'legend').attr('transform', 'translate(' + width + ',0)');
+
+  // Get the domain values from the color scale
+  var newDomainValues = ['Lionel Messi', 'Cristiano Ronaldo', 'Marco van Basten', 'Michel Platini', 'Johan Cruyff', 'Ronaldo', 'Karl-Heinz Rummenigge', 'Kevin Keegan', 'Franz Beckenbauer', 'Alfredo Di Stéfano'];
+  colorScale.domain(newDomainValues);
+
+  // Create a legend scale with the domain values and a custom label function
+  var legend = _d3SvgLegend.default.legendColor().scale(colorScale).title('Players').shape('line').shapeWidth(25).labels(function (d) {
+    return newDomainValues[d.i];
+  });
+  g.select('#legend').call(legend);
+  g.select('#legend').call(legend);
 }
 },{"d3-svg-legend":"../node_modules/d3-svg-legend/indexRollupNext.js"}],"scripts/scales.js":[function(require,module,exports) {
 "use strict";
@@ -8703,8 +9186,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.setColorScale = setColorScale;
 exports.setRadiusScale = setRadiusScale;
-exports.setXScaleViz3 = setXScaleViz3;
+exports.setXScaleViz4Bar = setXScaleViz4Bar;
+exports.setXScaleYears = setXScaleYears;
+exports.setXScaleYearsViz2 = setXScaleYearsViz2;
+exports.setYScaleViz2 = setYScaleViz2;
 exports.setYScaleViz3 = setYScaleViz3;
+exports.setYScaleViz4 = setYScaleViz4;
+exports.setYScaleViz4Bar = setYScaleViz4Bar;
 /**
  * Defines the color scale used to determine the color of the circle markers.
  *
@@ -8744,15 +9232,19 @@ function setRadiusScale(data) {
 }
 
 /**
- * Viz 3:
+ * Viz 3 and 4:
  * Defines the linear scale used to position the center of the circles in X.
  *
  * @param {number} width The width of the graph
  * @param {object} data The data to be used
+ * @param {number} startYear The start year
  * @returns {*} The linear scale in X
  */
-function setXScaleViz3(width, data) {
-  var years = data.map(function (d) {
+function setXScaleYears(width, data, startYear) {
+  var filteredData = data.filter(function (d) {
+    return d.year >= startYear && d.year <= startYear + 10;
+  });
+  var years = filteredData.map(function (d) {
     return d.year;
   });
   var yearsScale = d3.scaleLinear().domain([d3.min(years), d3.max(years)]).range([0, width]);
@@ -8760,8 +9252,20 @@ function setXScaleViz3(width, data) {
 }
 
 /**
+ * Viz 2:
+ * Defines the linear scale used.
+ *
+ * @param {number} width The width of the graph
+ * @returns {*} The linear scale in X
+ */
+function setXScaleYearsViz2(width) {
+  var yearsScale = d3.scaleLinear().domain([1957, 2022]).range([0, width]);
+  return yearsScale;
+}
+
+/**
  * Viz 3:
- * Defines the log scale used to position the center of the circles in Y.
+ * Defines the linear scale used to position the center of the circles in Y.
  *
  * @param {number} height The height of the graph
  * @param {object} data The data to be used
@@ -8773,6 +9277,71 @@ function setYScaleViz3(height, data) {
   });
   var minutesScale = d3.scaleLinear().domain([d3.min(minutes), d3.max(minutes)]).range([height, 0]);
   return minutesScale;
+}
+
+/**
+ * Viz 4 - scatter:
+ * Defines the linear scale used to position in Y.
+ *
+ * @param {number} height The height of the graph
+ * @param {object} data The data to be used
+ * @returns {*} The linear scale in Y
+ */
+function setYScaleViz4(height, data) {
+  var ages = data.map(function (d) {
+    return d.age;
+  });
+  var agesScale = d3.scaleLinear().domain([0, d3.max(ages)]).range([height, 0]);
+  return agesScale;
+}
+
+/**
+ * Viz 4 - bar:
+ * Defines the linear scale used to position the rects.
+ *
+ * @param {number} width The width of the graph
+ * @param {object} data The data to be used
+ * @returns {*} The linear scale in X
+ */
+function setXScaleViz4Bar(width, data) {
+  var counts = data.map(function (d) {
+    return d.count;
+  });
+  return d3.scaleLinear().domain([0, d3.max(counts)]).range([0, width]);
+}
+
+/**
+ * Viz 4 - bar:
+ * Defines the linear scale used to position in Y.
+ *
+ * @param {number} height The height of the graph
+ * @param {object} data The data to be used
+ * @returns {*} The linear scale in Y
+ */
+function setYScaleViz4Bar(height, data) {
+  var ages = data.map(function (d) {
+    return d.age;
+  });
+  var ageDomain = Array.from({
+    length: d3.max(ages) - d3.min(ages) + 1
+  }, function (_, i) {
+    return i + d3.min(ages);
+  });
+  return d3.scaleBand().domain(ageDomain).range([height, 0]).padding(0.1);
+}
+
+/**
+ * Viz 2:
+ * Defines the linear scale used to position in Y.
+ *
+ * @param {number} height The height of the graph
+ * @returns {*} The linear scale in Y
+ */
+function setYScaleViz2(height) {
+  // const ages = data.map((d) => d.ages)
+
+  var agesScale = d3.scaleLinear().domain([0, 8]).range([height, 0]);
+  return agesScale;
 }
 },{}],"../node_modules/d3-tip/node_modules/d3-selection/src/namespaces.js":[function(require,module,exports) {
 "use strict";
@@ -10475,6 +11044,7 @@ function _default() {
   return tip;
 }
 },{"d3-collection":"../node_modules/d3-collection/src/index.js","d3-selection":"../node_modules/d3-tip/node_modules/d3-selection/src/index.js"}],"index.js":[function(require,module,exports) {
+/* eslint-disable no-trailing-spaces */
 'use strict';
 
 var helper = _interopRequireWildcard(require("./scripts/helper.js"));
@@ -10500,35 +11070,169 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
     bottom: 100,
     left: 80
   };
+  var currentYearViz3 = 2012;
+  var currentYearViz4 = 2012;
+  var years = [1955, 1960, 1970, 1980, 1990, 2000, 2010, 2012];
   var svgSize, graphSize;
-  setSizing();
-  d3.csv('./ballondor.csv').then(function (data) {
-    // TODO
-    var visualization = 1;
-    // const newData = preprocess.function(data)
-
-    // viz.function(...)
-
-    // legend.function(...)
-
-    // build(newData, visualization, transitionDuration, colorScale, xScale, yScale)
-  });
-
-  d3.csv('./ballondor.csv').then(function (data) {
-    // TODO
-    var visualization = 2;
-    // const newData = preprocess.function(data)
-
-    // viz.function(...)
-
-    // legend.function(...)
-
-    // build(newData, visualization, transitionDuration, colorScale, xScale, yScale)
-  });
-
   // Define an array of file paths for the CSV files
   var playTimePaths = helper.listOfPlayTimeCSVs();
   var filePaths = ['./ballondor.csv', './positions.csv'].concat(playTimePaths);
+  var worldPath = ['./custom.geo.json'];
+
+  /**
+   * Visualization 1
+   *
+   */
+  Promise.all(worldPath.map(function (filePath) {
+    return d3.json(filePath);
+  })).then(function (world) {
+    // viz 1
+
+    setSizing('#map-viz1');
+    var g = helper.generateG(margin, 'viz1');
+
+    // Load the GeoJSON file of the world's borders
+
+    // Create a projection to transform latitude and longitude coordinates to pixel coordinates
+    var projection = d3.geoMercator().fitSize([graphSize.width, graphSize.height], world[0]);
+
+    // Create a path generator to convert GeoJSON objects to SVG paths
+    var pathGenerator = d3.geoPath().projection(projection);
+
+    // Create a new div element
+    var tooltip = document.createElement('div');
+    helper.placeTitle(g, graphSize.width);
+    viz.setTitleText('#viz1', "Nationality of Ballon d'or winners");
+
+    // Add some content to the div
+
+    // Set the CSS styles for the div
+    tooltip.style.position = 'absolute';
+    tooltip.style.background = 'white';
+    tooltip.style.border = '1px solid black';
+    tooltip.style.padding = '0px';
+    tooltip.style.display = 'none';
+    tooltip.style.borderRadius = '6px';
+
+    // Add the div to the document body
+    document.body.appendChild(tooltip);
+
+    // Add a click event listener to the document body
+
+    d3.csv('./country.csv').then(function (data) {
+      d3.csv('./ballondor.csv').then(function (data2) {
+        // data is an array of objects, where each object represents a country and its corresponding point value
+
+        // Define a color scale
+        var colorScale = d3.scaleSequential().interpolator(d3.interpolateBlues) // Define the range of colors to interpolate between
+        .domain([1, 7]); // Define the domain of values to map to the range of colors
+
+        // update the color of each path element based on its corresponding data point
+        g.selectAll('path').data(world[0].features).enter().append('path').attr('d', pathGenerator).style('stroke', 'black').style('stroke-width', '0.5px').style('fill', 'white').style('fill', function (dd) {
+          var countryData = data.find(function (c) {
+            return c.country === dd.properties.admin;
+          });
+          if (countryData) {
+            return colorScale(+countryData.points);
+          } else {
+            return 'white'; // or whatever default color you want to use
+          }
+        }).on('click', function (d, i) {
+          var players = preprocess.getPlayersNames(data2, i.properties.admin);
+          if (players.length !== 0) {
+            tooltip.innerHTML = "\n            <div style=\"color: #FFF; background-color: #5e4c4f; padding: 10px; border-radius: 5px;\">\n              <h3 style=\"margin-top: 0;\">".concat(i.properties.admin, "</h3>\n              <ul style=\"list-style: none; margin: 0; padding: 0;\">\n                ").concat(players.map(function (player) {
+              return "\n                  <li style=\"padding: 5px 0;\">\n                    <span style=\"color: #7ff3b8; font-weight: bold;\">".concat(player.year, ": </span>\n                    <span style=\"color: #FFF;\">").concat(player.player, "</span>\n                    <span style=\"color: #7ff3b8; font-style: italic;\">(").concat(player.club, ", ").concat(player.Nationality, ")</span>\n                  </li>\n                ");
+            }).join(''), "\n              </ul>\n            </div>\n          ");
+            var closeButton = document.createElement('div');
+            closeButton.innerHTML = '&#10005;'; // X symbol
+            closeButton.style.position = 'absolute';
+            closeButton.style.top = '1px';
+            closeButton.style.right = '11px';
+            closeButton.style.cursor = 'pointer';
+            closeButton.style.color = 'White';
+            closeButton.style.fontSize = '30px';
+            closeButton.style.fontWeight = 'bold';
+            tooltip.appendChild(closeButton);
+            closeButton.addEventListener('click', function () {
+              tooltip.style.display = 'none';
+            });
+            tooltip.style.top = event.pageY + 'px';
+            tooltip.style.left = event.pageX + 'px';
+
+            // Show the tooltip div
+            tooltip.style.display = 'block';
+          }
+        }).on('mouseout', function (d) {});
+        legend.drawLegendViz1(colorScale, g, graphSize.width);
+      });
+    });
+  }).catch(function (error) {
+    // Handle any errors that may occur while loading the CSV files
+    console.error('Error loading CSV files (viz1):', error);
+  });
+
+  /**
+   * Visualization 2
+   *
+   */
+  Promise.all(filePaths.map(function (filePath) {
+    return d3.csv(filePath);
+  })).then(function (dataArray) {
+    var ballonDorData = preprocess.summarizeBallonDor(dataArray[0]);
+    setSizing('#map-viz2');
+    var g = helper.generateG(margin, 'viz2');
+    var tip = (0, _d3Tip.default)().attr('class', 'd3-tip').html(function (d) {
+      return tooltip.getContentsViz2(d);
+    });
+    g.call(tip);
+    helper.appendAxes(g);
+    helper.appendGraphLabels(g, 'Years', "Ballon d'or won");
+    helper.placeTitle(g, graphSize.width);
+    viz.positionLabels(g, graphSize.width, graphSize.height);
+    var xScale = scales.setXScaleYearsViz2(graphSize.width);
+    var yScale = scales.setYScaleViz2(graphSize.height);
+    helper.drawXAxis(g, xScale, graphSize.height);
+    helper.drawYAxis(g, yScale);
+    var colors = ['steelblue', 'green', 'red', 'purple', 'orange', 'magenta', 'teal', 'cyan', 'maroon', 'navy'];
+    var colorScale = d3.scaleOrdinal().range(colors);
+    viz.setTitleText('#viz2', "Multiple Ballon d'or winners");
+
+    /**
+     * This function builds the graph.
+     *
+     * @param {object} data The data to be used
+     * @param {*} colorScale The scale for the circles' color
+     * @param {*} xScale The x scale for the graph
+     * @param {*} yScale The y scale for the graph
+     */
+    function build(data, colorScale, xScale, yScale) {
+      data.forEach(function (player) {
+        var playerYears = player.Years;
+        var lineData = [];
+        var position = 1;
+        playerYears.forEach(function (year) {
+          var x = xScale(parseInt(year));
+          var y = yScale(position);
+          lineData.push({
+            x: x,
+            y: y
+          });
+          position++;
+        });
+        viz.drawLines(lineData, player, colorScale, tip);
+      });
+    }
+    build(ballonDorData, colorScale, xScale, yScale);
+    legend.drawLegendViz2(colorScale, g, graphSize.width);
+  }).catch(function (error) {
+    // Handle any errors that may occur while loading the CSV files
+    console.error('Error loading CSV files (viz2):', error);
+  });
+
+  /**
+   * Visualization 3
+   *
+   */
   Promise.all(filePaths.map(function (filePath) {
     return d3.csv(filePath);
   })).then(function (dataArray) {
@@ -10544,96 +11248,250 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
     var minutesAndGames = preprocess.getMinutesGames(playTimePaths, PlayingTimeArrays);
     var viz3Data = preprocess.mergeDataByKeys(mergedData, minutesAndGames, 'codePlayer', 'codePlayer');
 
-    // viz
-    var g = helper.generateG(margin);
+    // viz 3
+    setSizing('#map-viz3');
+    var g = helper.generateG(margin, 'viz3');
     var tip = (0, _d3Tip.default)().attr('class', 'd3-tip').html(function (d) {
       return tooltip.getContentsViz3(d);
     });
     g.call(tip);
     helper.appendAxes(g);
     helper.appendGraphLabels(g, 'Years', 'Minutes played');
-    helper.placeTitleViz3(g, graphSize.width);
-    viz.positionLabelsViz3(g, graphSize.width, graphSize.height);
+    helper.placeTitle(g, graphSize.width);
+    viz.positionLabels(g, graphSize.width, graphSize.height);
+    helper.drawButtons(g, graphSize.width, graphSize.height, '#d3d9d2');
     var radiusScale = scales.setRadiusScale(viz3Data);
     var colorScale = scales.setColorScale(viz3Data);
-    var xScale = scales.setXScaleViz3(graphSize.width, viz3Data);
+    var xScale = scales.setXScaleYears(graphSize.width, viz3Data, currentYearViz3);
     var yScale = scales.setYScaleViz3(graphSize.height, viz3Data);
-    helper.drawXAxisViz3(xScale, graphSize.height);
-    helper.drawYAxisViz3(yScale);
+    helper.drawXAxis(g, xScale, graphSize.height);
+    helper.drawYAxis(g, yScale);
     legend.drawLegend(colorScale, g, graphSize.width);
+    buildScatter(viz3Data, 0, currentYearViz3, radiusScale, colorScale, xScale, yScale);
+    viz.setHoverHandlerViz3(tip);
+    setClickHandlerBack(g);
+    setClickHandlerForward(g);
 
     /**
      * This function builds the graph.
      *
      * @param {object} data The data to be used
      * @param {number} transitionDuration The duration of the transition while placing the circles
-     * @param {Array[]} years The year to be displayed
+     * @param {Array[]} year The year to be displayed
      * @param {*} rScale The scale for the circles' radius
      * @param {*} colorScale The scale for the circles' color
      * @param {*} xScale The x scale for the graph
      * @param {*} yScale The y scale for the graph
      */
-    function buildScatter(data, transitionDuration, years, rScale, colorScale, xScale, yScale) {
-      // then I have to change the range - years
-      viz.drawCircles(data, rScale, colorScale, xScale, yScale);
-      viz.moveCircles(xScale, yScale, transitionDuration);
-      viz.setTitleTextViz3();
+    function buildScatter(data, transitionDuration, year, rScale, colorScale, xScale, yScale) {
+      var filteredData = data.filter(function (d) {
+        return d.year > year && d.year <= year + 10;
+      });
+      viz.drawCircles(filteredData, '#viz3', rScale, colorScale, xScale, yScale);
+      viz.moveCirclesViz3(g, xScale, yScale, transitionDuration);
+      viz.setTitleText('#viz3', 'Relationship between winners, minutes and games played');
     }
-    // change it
-    var transitionDuration = 0;
-    var years = [1960, 2000, 2021];
-    buildScatter(viz3Data, transitionDuration, years, radiusScale, colorScale, xScale, yScale);
-    viz.setCircleHoverHandler(tip);
+
+    /**
+     *   Viz 3:
+     *   Sets up the click handler for the button
+     *
+     *   @param {*} g The d3 Selection of the graph's g SVG element
+     */
+    function setClickHandlerBack(g) {
+      var backButton = g.select('.button.back');
+      backButton.on('click', function () {
+        // Activate the forward button
+        if (currentYearViz3 === years[years.length - 1]) {
+          g.select('.button.forward').select('rect').attr('pointer-events', null).attr('fill', '#f4f6f4');
+        }
+        currentYearViz3 = years[years.indexOf(currentYearViz3) - 1];
+        xScale = scales.setXScaleYears(graphSize.width, viz3Data, currentYearViz3);
+        helper.drawXAxis(g, xScale, graphSize.height);
+        buildScatter(viz3Data, 1000, currentYearViz3, radiusScale, colorScale, xScale, yScale);
+        // Disable the back button
+        if (currentYearViz3 === years[0]) {
+          backButton.select('rect').attr('pointer-events', 'none').attr('fill', '#d3d9d2');
+        }
+      });
+    }
+
+    /**
+     *   Viz 3:
+     *   Sets up the click handler for the button
+     *
+     *   @param {*} g The d3 Selection of the graph's g SVG element
+     */
+    function setClickHandlerForward(g) {
+      var forwardButton = g.select('.button.forward');
+      forwardButton.on('click', function () {
+        // Activate the back button
+        if (currentYearViz3 === years[0]) {
+          g.select('.button.back').select('rect').attr('pointer-events', null).attr('fill', '#f4f6f4');
+        }
+        currentYearViz3 = years[years.indexOf(currentYearViz3) + 1];
+        xScale = scales.setXScaleYears(graphSize.width, viz3Data, currentYearViz3);
+        helper.drawXAxis(g, xScale, graphSize.height);
+        buildScatter(viz3Data, 1000, currentYearViz3, radiusScale, colorScale, xScale, yScale);
+        // Disable the forward button
+        if (currentYearViz3 === years[years.length - 1]) {
+          forwardButton.select('rect').attr('pointer-events', 'none').attr('fill', '#d3d9d2');
+        }
+      });
+    }
   }).catch(function (error) {
     // Handle any errors that may occur while loading the CSV files
     console.error('Error loading CSV files (viz3):', error);
   });
-  d3.csv('./ballondor.csv').then(function (data) {
-    // TODO
-    var visualization = 4;
-    // const newData = preprocess.function(data)
 
-    // viz.function(...)
-
-    // legend.function(...)
-
-    // build(newData, visualization, transitionDuration, colorScale, xScale, yScale)
-  });
   /**
-   *   This function handles the graph's sizing.
+   * Visualization 4
+   *
    */
-  function setSizing() {
+  Promise.all(filePaths.map(function (filePath) {
+    return d3.csv(filePath);
+  })).then(function (dataArray) {
+    // Extract the loaded data from ballonDorData and positionsData files
+    var ballonDorData = dataArray[0];
+    var positionsData = dataArray[1];
+    var mergedData = preprocess.mergeDataByKeys(ballonDorData, positionsData, 'player', 'player');
+    var viz4Data = preprocess.getAges(mergedData);
+
+    // scatter plot and lines
+    setSizing('#map-viz4');
+    var g1 = helper.generateGViz4(margin, 'viz4', '#graph1');
+    var tip = (0, _d3Tip.default)().attr('class', 'd3-tip').html(function (d) {
+      return tooltip.getContentsViz4(d);
+    });
+    g1.call(tip);
+    helper.appendAxes(g1);
+    helper.appendGraphLabels(g1, 'Years', 'Ages');
+    helper.placeTitle(g1, graphSize.width);
+    viz.positionLabels(g1, graphSize.width - margin.right, graphSize.height);
+    helper.drawButtons(g1, graphSize.width - margin.right, graphSize.height, '#ffffff');
+    var xScale = scales.setXScaleYears(graphSize.width - margin.right, viz4Data, currentYearViz4);
+    var yScale = scales.setYScaleViz4(graphSize.height, viz4Data);
+    helper.drawXAxis(g1, xScale, graphSize.height);
+    helper.drawYAxis(g1, yScale);
+
+    /**
+     * This function builds the graph 01.
+     *
+     * @param {object} data The data to be used
+     * @param {number} transitionDuration The duration of the transition while placing the circles
+     * @param {Array[]} year The year to be displayed
+     * @param {*} xScale The x scale for the graph
+     * @param {*} yScale The y scale for the graph
+     */
+    function buildGrap1(data, transitionDuration, year, xScale, yScale) {
+      var filteredData = data.filter(function (d) {
+        return d.year > year && d.year <= year + 10;
+      });
+      viz.drawData(filteredData, '#viz41', xScale, yScale);
+      viz.moveCirclesViz4(g1, xScale, yScale, transitionDuration);
+      viz.setTitleText('#viz41', 'Ages of winning players');
+    }
+    var transitionDuration = 0;
+    buildGrap1(viz4Data, transitionDuration, currentYearViz4, xScale, yScale);
+    viz.setHoverHandlerViz4(tip);
+    setClickHandlerBack(g1);
+    setClickHandlerForward(g1);
+
+    // bar graph
+    var ageCounts = preprocess.ageCounts(viz4Data);
+    var g2 = helper.generateGViz4(margin, 'viz4', '#graph2');
+    var tip2 = (0, _d3Tip.default)().attr('class', 'd3-tip').html(function (d) {
+      return tooltip.getContentsViz4Bar(d);
+    });
+    g2.call(tip2);
+    helper.appendAxes(g2);
+    helper.appendGraphLabels(g2, 'Amount of players', 'Ages');
+    viz.positionLabels(g2, graphSize.width / 2, graphSize.height);
+    var xScaleBar = scales.setXScaleViz4Bar(graphSize.width / 2, ageCounts);
+    var yScaleBar = scales.setYScaleViz4Bar(graphSize.height, ageCounts);
+    helper.drawXAxis(g2, xScaleBar, graphSize.height);
+    helper.drawYAxisBar(g2, yScaleBar);
+
+    /**
+     * This function builds the graph 02.
+     *
+     * @param {object} data The age and number of ages
+     * @param {*} xScale The x scale for the graph
+     * @param {*} yScale The y scale for the graph
+     */
+    function buildGrap2(data, xScale, yScale) {
+      viz.drawBar(data, '#viz42', xScale, yScale);
+    }
+    buildGrap2(ageCounts, xScaleBar, yScaleBar);
+    viz.setHoverHandlerViz4Bar(tip);
+
+    /**
+     *   Viz 4:
+     *   Sets up the click handler for the button
+     *
+     *   @param {*} g The d3 Selection of the graph's g SVG element
+     */
+    function setClickHandlerBack(g) {
+      var backButton = g.select('.button.back');
+      backButton.on('click', function () {
+        // Activate the forward button
+        if (currentYearViz4 === years[years.length - 1]) {
+          g.select('.button.forward').select('rect').attr('pointer-events', null).attr('fill', '#f4f6f4');
+        }
+        currentYearViz4 = years[years.indexOf(currentYearViz4) - 1];
+        xScale = scales.setXScaleYears(graphSize.width - margin.right, viz4Data, currentYearViz4);
+        helper.drawXAxis(g, xScale, graphSize.height);
+        buildGrap1(viz4Data, 1000, currentYearViz4, xScale, yScale);
+        // Disable the back button
+        if (currentYearViz4 === years[0]) {
+          backButton.select('rect').attr('pointer-events', 'none').attr('fill', '#ffffff');
+        }
+      });
+    }
+
+    /**
+     *   Viz 4:
+     *   Sets up the click handler for the button
+     *
+     *   @param {*} g The d3 Selection of the graph's g SVG element
+     */
+    function setClickHandlerForward(g) {
+      var forwardButton = g.select('.button.forward');
+      forwardButton.on('click', function () {
+        // Activate the back button
+        if (currentYearViz4 === years[0]) {
+          g.select('.button.back').select('rect').attr('pointer-events', null).attr('fill', '#f4f6f4');
+        }
+        currentYearViz4 = years[years.indexOf(currentYearViz4) + 1];
+        xScale = scales.setXScaleYears(graphSize.width - margin.right, viz4Data, currentYearViz4);
+        helper.drawXAxis(g, xScale, graphSize.height);
+        buildGrap1(viz4Data, 1000, currentYearViz4, xScale, yScale);
+        // Disable the forward button
+        if (currentYearViz4 === years[years.length - 1]) {
+          forwardButton.select('rect').attr('pointer-events', 'none').attr('fill', '#ffffff');
+        }
+      });
+    }
+  }).catch(function (error) {
+    // Handle any errors that may occur while loading the CSV files
+    console.error('Error loading CSV files (viz4):', error);
+  });
+
+  /**
+   * This function handles the graph's sizing.
+   *
+   * @param {string} id The id of the graph's div
+   */
+  function setSizing(id) {
     svgSize = {
-      width: 1000,
+      width: 1150,
       height: 600
     };
     graphSize = {
       width: svgSize.width - margin.right - margin.left,
       height: svgSize.height - margin.bottom - margin.top
     };
-    helper.setCanvasSize(svgSize.width, svgSize.height);
-  }
-  /**
-   * This function builds the graph.
-   *
-   * @param {object} data The data to be used
-   * @param {number} visualization The number of visualization
-   * @param {number} transitionDuration The duration of the transition while placing the shapes
-   * @param {*} rScale The scale for the circles' radius
-   * @param {*} colorScale The scale for the circles' color
-   * @param {*} xScale The x scale for the graph
-   * @param {*} yScale The y scale for the graph
-   */
-  function build(data, visualization, transitionDuration, colorScale, xScale, yScale) {
-    if (visualization === 1) {
-      // TODO
-    } else if (visualization === 2) {
-      // TODO
-    } else if (visualization === 3) {
-      // TODO
-    } else {
-      // TODO
-    }
+    helper.setCanvasSize(id, svgSize.width, svgSize.height);
   }
 })(d3);
 },{"./scripts/helper.js":"scripts/helper.js","./scripts/viz.js":"scripts/viz.js","./scripts/preprocess.js":"scripts/preprocess.js","./scripts/legend.js":"scripts/legend.js","./scripts/tooltip.js":"scripts/tooltip.js","./scripts/scales.js":"scripts/scales.js","d3-tip":"../node_modules/d3-tip/index.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
@@ -10661,7 +11519,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "23707" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "27973" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

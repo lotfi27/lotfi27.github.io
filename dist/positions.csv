@@ -1,46 +1,46 @@
-player,acronym,position
-Karim Benzema,FW,Forwards
-Lionel Messi,MF,Midfielders
-Luka Modric,MF,Midfielders
-Cristiano Ronaldo,MF,Midfielders
-Kaká,MF,Midfielders
-Fabio Cannavaro,DF,Defenders
-Ronaldinho,MF,Midfielders
-Andriy Shevchenko,FW,Forwards
-Pavel Nedvěd,MF,Midfielders
-Ronaldo,FW,Forwards
-Michael Owen,FW,Forwards
-Luís Figo,MF,Midfielders
-Rivaldo,MF,Midfielders
-Zinedine Zidane,MF,Midfielders
-Matthias Sammer,DF,Defenders
-George Weah,FW,Forwards
-Hristo Stoichkov,MF,Midfielders
-Roberto Baggio,MF,Midfielders
-Marco van Basten,FW,Forwards
-Jean-Pierre Papin,FW,Forwards
-Lothar Matthäus,DF,Defenders
-Ruud Gullit,MF,Midfielders
-Igor Belanov,MF,Midfielders
-Michel Platini,MF,Midfielders
-Paolo Rossi,FW,Forwards
-Karl-Heinz Rummenigge,FW,Forwards
-Kevin Keegan,FW,Forwards
-Allan Simonsen,FW,Forwards
-Franz Beckenbauer,DF,Defenders
-Oleg Blokhin,DF,Defenders
-Johan Cruyff,MF,Midfielders
-Gerd Müller,FW,Forwards
-Gianni Rivera,MF,Midfielders
-George Best,MF,Midfielders
-Flórián Albert,FW,Forwards
-Bobby Charlton,MF,Midfielders
-Eusébio,FW,Forwards
-Denis Law,FW,Forwards
-Lev Yashin,GK,Goalkeepers
-Josef Masopust,MF,Midfielders
-Omar Sívori,MF,Midfielders
-Luis Suárez,MF,Midfielders
-Alfredo Di Stéfano,FW,Forwards
-Raymond Kopa,MF,Midfielders
-Stanley Matthews,MF,Midfielders
+player,acronym,position,birth
+Karim Benzema,FW,Forward,1987
+Lionel Messi,MF,Midfielder,1987
+Luka Modric,MF,Midfielder,1985
+Cristiano Ronaldo,MF,Midfielder,1985
+Kaká,MF,Midfielder,1982
+Fabio Cannavaro,DF,Defender,1973
+Ronaldinho,MF,Midfielder,1980
+Andriy Shevchenko,FW,Forward,1976
+Pavel Nedvěd,MF,Midfielder,1972
+Ronaldo,FW,Forward,1976
+Michael Owen,FW,Forward,1979
+Luís Figo,MF,Midfielder,1972
+Rivaldo,MF,Midfielder,1972
+Zinedine Zidane,MF,Midfielder,1972
+Matthias Sammer,DF,Defender,1967
+George Weah,FW,Forward,1966
+Hristo Stoichkov,MF,Midfielder,1966
+Roberto Baggio,MF,Midfielder,1967
+Marco van Basten,FW,Forward,1964
+Jean-Pierre Papin,FW,Forward,1963
+Lothar Matthäus,DF,Defender,1961
+Ruud Gullit,MF,Midfielder,1962
+Igor Belanov,MF,Midfielder,1960
+Michel Platini,MF,Midfielder,1955
+Paolo Rossi,FW,Forward,1956
+Karl-Heinz Rummenigge,FW,Forward,1955
+Kevin Keegan,FW,Forward,1951
+Allan Simonsen,FW,Forward,1952
+Franz Beckenbauer,DF,Defender,1945
+Oleg Blokhin,DF,Defender,1952
+Johan Cruyff,MF,Midfielder,1947
+Gerd Müller,FW,Forward,1945
+Gianni Rivera,MF,Midfielder,1943
+George Best,MF,Midfielder,1946
+Flórián Albert,FW,Forward,1941
+Bobby Charlton,MF,Midfielder,1937
+Eusébio,FW,Forward,1942
+Denis Law,FW,Forward,1940
+Lev Yashin,GK,Goalkeeper,1929
+Josef Masopust,MF,Midfielder,1931
+Omar Sívori,MF,Midfielder,1935
+Luis Suárez,MF,Midfielder,1935
+Alfredo Di Stéfano,FW,Forward,1926
+Raymond Kopa,MF,Midfielder,1931
+Stanley Matthews,MF,Midfielder,1915
